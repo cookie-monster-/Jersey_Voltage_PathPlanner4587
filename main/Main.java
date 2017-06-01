@@ -11,8 +11,8 @@ public class Main {
 	    Circles c = new Circles();
 		//c.drawCirclePath("testPath", 90);
 		Lines2 l = new Lines2();
-		l.drawStraightPath("testPath", 5.0,5.0,0.0);
+		//l.drawStraightPath("testPath", 15.0,5.0,0.0);
 		Arcs a = new Arcs();
-		//a.drawArcPath("testPath",90, 5);
+		a.drawArcPath("testPath",90, 5);
 	}
 }

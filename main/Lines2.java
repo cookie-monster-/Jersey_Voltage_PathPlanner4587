@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Lines2 {
 	public void drawStraightPath(String filename, double totalDistance,double startVel,double endVel) {
-	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+	    String filepath = "C:/Users/4587/Desktop/pathGui/"+filename+".txt";
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double velocityMax = Constants.VEL_MAX;
@@ -15,8 +15,6 @@ public class Lines2 {
 		double posNow;
 		double posLast=0.0;
 		double acc;
-		double totalTime=0;
-		double lineNum = 0;
 		double timeStep = Constants.TIMESTEP;
 		double x;
 		double y;
@@ -24,71 +22,186 @@ public class Lines2 {
 		//totalDistance = wheelbase * Math.PI /360 * totalDegrees / 12; // divide 12 = ft
 		
 		double timeOff=0;
-		double testAcc=0;
-		double testVel=0;
+		double trapTestAcc=0;
+		double trapTestVel=0;
 		double triTime=0;
 		double doubleTriDist=0;
 		double distLeftover=0;
 		double timeAtMaxVel=0;
 		
-		double ghostTime;
-		double ghostDist;
-		if(startVel>0){
+
+		double totalTime=0;
+		double totalLineNum = 0;
+		double trapDist=0;
+		double trapTime=0;
+		double trapLineNum=0;
+		
+		double startTriTime=0;
+		double endTriTime=0;
+		double startTriDist=0;
+		double endTriDist=0;
+		double startTriTestAcc=0;
+		double endTriTestAcc=0;
+		double startTriLineNum=0;
+		double endTriLineNum=0;
+		/*if(startVel>0){
 			ghostTime=startVel/acceleration;
 			ghostDist=ghostTime*startVel/2;
 			System.out.println("ghostTime: "+ghostTime+" ghostDist: "+ghostDist+" totalDistance(no ghost): "+totalDistance);
 			totalDistance+=ghostDist;
-		}
+		}*/
 
-		totalTime = Math.sqrt(4*totalDistance/acceleration);
-			timeOff = totalTime % timeStep;
-			totalTime -= timeOff;
-			if(timeOff >= timeStep/2){
-				totalTime+=timeStep;
+
+		if(startVel>endVel){
+			//find endVel triangle
+			endTriTime=startVel/acceleration;
+			endTriTime=findTime(endTriTime);
+			endTriLineNum=findLineNum(endTriTime);
+			endTriDist=endTriTime*startVel/2;
+			endTriTestAcc = (2*endTriDist)/(endTriTime*endTriTime);
+			System.out.println("endTriTime: "+endTriTime+" endTriDist: "+endTriDist+" endTriTestAcc: "+endTriTestAcc+" totalDistance: "+totalDistance);
+			trapDist=totalDistance-endTriDist;
+		}else if(endVel>startVel){
+			//find startVel triangle
+			startTriTime=endVel/acceleration;
+			startTriTime=findTime(startTriTime);
+			startTriLineNum=findLineNum(startTriTime);
+			startTriDist=startTriTime*endVel/2;
+			startTriTestAcc = (2*startTriDist)/(startTriTime*startTriTime);
+			System.out.println("startTriTime: "+startTriTime+" startTriDist: "+startTriDist+" startTriTestAcc: "+startTriTestAcc+" totalDistance: "+totalDistance);
+			trapDist=totalDistance-startTriDist;
+		}else if(endVel==startVel&&startVel>0){
+			//both = and > 0
+			
+		}else{
+			//both 0
+			trapDist=totalDistance;
+		}
+		double ghostTestVel;
+		if(trapDist<totalDistance){
+			if(startVel>endVel){
+				//real endTri, ghostStartTri
+				totalTime = Math.sqrt(4*(totalDistance+endTriDist)/acceleration);
+				totalTime = findTime(totalTime);
+				totalLineNum = findLineNum(totalTime);
+				
+				boolean goodTrap=false;
+				boolean forwards=true;
+				boolean backwards=false;
+				int i=-1;
+				while(goodTrap==false){
+					System.out.println("hi");
+					double lastError=9999999999.0;
+					int lastI=0;
+					while(forwards){
+						i++;
+						trapTime=totalTime-(endTriTime*2)-(i*timeStep);
+						trapTime = findTime(trapTime);
+						trapLineNum = findLineNum(trapTime);
+						trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+						trapTestAcc=(2*trapDist)/(trapTime*trapTime);
+						trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+						double nowError = Math.abs(trapTestAcc-acceleration);
+						if(nowError>lastError){
+							forwards=false;
+							backwards=true;
+							lastError=9999999999.0;
+							lastI=i;
+							i=-1;
+						}
+						lastError=nowError;
+					}
+					int secondLastI=0;
+					while(backwards){
+						i++;
+						trapTime=totalTime-(endTriTime*2)-(lastI*timeStep)+(i*timeStep);
+						trapTime = findTime(trapTime);
+						trapLineNum = findLineNum(trapTime);
+						trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+						trapTestAcc=(2*trapDist)/(trapTime*trapTime);
+						trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+						double nowError = Math.abs(trapTestAcc-acceleration);
+						if(nowError>lastError){
+							forwards=false;
+							backwards=false;
+							secondLastI=i;
+						}
+						lastError=nowError;
+					}
+					int finalI = secondLastI-lastI-1;
+					trapTime=totalTime-(endTriTime*2)+(finalI*timeStep);
+					trapTime = findTime(trapTime);
+					trapLineNum = findLineNum(trapTime);
+					trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+					trapTestAcc=(2*trapDist)/(trapTime*trapTime);
+					trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+					goodTrap=true;
+				}
+				double guessTrapDist=trapTestVel*trapTime;
+				System.out.println("totalDist: "+totalDistance+" trapDist: "+trapDist+" triDist: "+endTriDist+" rectDist: "+(trapTime*startVel));
+				ghostTestVel = endTriTestAcc*(totalLineNum-1)/2*timeStep;
+				double guessDist=(ghostTestVel*(totalTime-(endTriTime*2)))+endTriDist;
+				System.out.println("ghostTestVel: "+ghostTestVel+" guessDist: "+guessDist+" trapTime: "+trapTime+" topTrapDist: "+trapDist+" trapTestAcc: "+trapTestAcc+
+						"\nguessTrapDist: "+guessTrapDist+" totalTime: "+totalTime+" triTime: "+endTriTime);
+				if(ghostTestVel>velocityMax){
+					//trapezoid path
+					
+				}else{
+					//triangle path
+					
+				}
+			}else{
+				//real startTri, ghostEndTri
+				//trapDist=trapDist-(*endVel);
+				ghostTestVel = startTriTestAcc*(totalLineNum-1)/2*timeStep;
+				double guessDist=ghostTestVel*(totalTime-startTriTime);
+				System.out.println("guessDist: "+guessDist);
+				if(ghostTestVel>velocityMax){
+					//trapezoid path
+					
+				}else{
+					//triangle path
+					
+				}
 			}
-			lineNum = totalTime / timeStep + 1;// +1 = line of 0's
-			if (lineNum%1>0){
-				if(lineNum%1>=0.5){
-					lineNum+=1;
+		}
+		trapTime = Math.sqrt(4*trapDist/acceleration);
+		trapTime = findTime(trapTime);
+		trapLineNum = findLineNum(trapTime);
+		trapTestAcc = (4*trapDist)/(trapTime*trapTime);
+		//acceleration = testAcc;
+		
+		trapTestVel = trapTestAcc*((trapLineNum-1)/2)*timeStep;
+		double triSteps=0;
+		if(trapTestVel>velocityMax){
+			//is trapezoid, not triangle
+			triTime = (velocityMax/acceleration);///timeStep;
+			triSteps = triTime/timeStep;
+			double triTimeOff = triSteps%1;
+			triSteps -= triTimeOff;
+			if(triTimeOff>=0.5){
+				triSteps+=1;
+			}
+			triTime = triSteps*timeStep;
+			doubleTriDist = triTime*velocityMax;
+			
+			trapTestAcc = (doubleTriDist)/(triTime*triTime);
+			acceleration = trapTestAcc;
+			
+			distLeftover = totalDistance - doubleTriDist;
+			timeAtMaxVel = distLeftover/velocityMax;
+			/*totalTime = (triTime*2)+timeAtMaxVel;
+			trapLineNum = totalTime / timeStep + 1;// +1 = line of 0's
+			if (trapLineNum%1>0){
+				if(trapLineNum%1>=0.5){
+					trapLineNum+=1;
 				}
 				lineNum-=lineNum%1;
-			}
-			testAcc = (4*totalDistance)/(totalTime*totalTime);
-			acceleration = testAcc;
-
-			if(startVel>0){
-				ghostTime=startVel/acceleration;
-				ghostDist=ghostTime*startVel/2;
-				System.out.println("ghostTime: "+ghostTime+" ghostDist: "+ghostDist+" totalDistance(no ghost): "+totalDistance);
-				//totalDistance+=ghostDist;
-			}
-			testVel = acceleration*((lineNum-1)/2)*timeStep;
-			double triSteps=0;
-			if(testVel>velocityMax){
-				triTime = (velocityMax/acceleration);///timeStep;
-				triSteps = triTime/timeStep;
-				double triTimeOff = triSteps%1;
-				triSteps -= triTimeOff;
-				if(triTimeOff>=0.5){
-					triSteps+=1;
-				}
-				triTime = triSteps*timeStep;
-				doubleTriDist = triTime*velocityMax;
-				
-				testAcc = (doubleTriDist)/(triTime*triTime);
-				acceleration = testAcc;
-				
-				distLeftover = totalDistance - doubleTriDist;
-				timeAtMaxVel = distLeftover/velocityMax;
-				totalTime = (triTime*2)+timeAtMaxVel;
-				lineNum = totalTime / timeStep + 1;// +1 = line of 0's
-				if (lineNum%1>0){
-					if(lineNum%1>=0.5){
-						lineNum+=1;
-					}
-					lineNum-=lineNum%1;
-				}
-			}
+			}*/
+		}
+		double testVel =0;
+		double lineNum=0;
+		double testAcc=0;
 		System.out.println("testVel: "+testVel+" overMaxVel? "+(testVel>velocityMax)+" steps: "+triSteps+" doubleTriDist: "+doubleTriDist+" timeAtMaxVel: "+timeAtMaxVel);
 		System.out.println("distLeftover: "+distLeftover);
 		System.out.println("dist: "+totalDistance+" time: "+totalTime+" timeOff: "+timeOff+" lineNum: "+lineNum+" testAcc: "+testAcc);
@@ -233,5 +346,24 @@ public class Lines2 {
 			}
 		}
 		return acc;
+	}
+	
+	private double findTime(double time){
+		double timeOff;
+		double timeStep = Constants.TIMESTEP;
+		timeOff = time % timeStep;
+		time -= timeOff;
+		if(timeOff >= timeStep/2){
+			time+=timeStep;
+		}
+		time*=100;
+		time=Math.round(time);
+		time/=100;
+		return time;
+	}
+	private double findLineNum(double time){
+		double timeStep = Constants.TIMESTEP;
+		double lineNum = time / timeStep + 1;// +1 = line of 0's
+		return lineNum;
 	}
 }
