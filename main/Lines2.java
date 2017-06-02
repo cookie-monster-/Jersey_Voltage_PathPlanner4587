@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Lines2 {
 	public void drawStraightPath(String filename, double totalDistance,double startVel,double endVel) {
-	    String filepath = "C:/Users/4587/Desktop/pathGui/"+filename+".txt";
+	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double velocityMax = Constants.VEL_MAX;
@@ -138,14 +138,57 @@ public class Lines2 {
 					goodTrap=true;
 				}
 				double guessTrapDist=trapTestVel*trapTime;
-				System.out.println("totalDist: "+totalDistance+" trapDist: "+trapDist+" triDist: "+endTriDist+" rectDist: "+(trapTime*startVel));
-				ghostTestVel = endTriTestAcc*(totalLineNum-1)/2*timeStep;
-				double guessDist=(ghostTestVel*(totalTime-(endTriTime*2)))+endTriDist;
+				double hexDist=trapDist+(trapTime*startVel);
+				System.out.println("totalDist: "+totalDistance+" trapDist: "+trapDist+" triDist: "+endTriDist+" rectDist: "+(trapTime*startVel)+" hexDist: "+hexDist);
+				//ghostTestVel = endTriTestAcc*(totalLineNum-1)/2*timeStep;
+				ghostTestVel=trapTestVel+startVel;
+				double guessDist=guessTrapDist+endTriDist+(trapTime*startVel);
 				System.out.println("ghostTestVel: "+ghostTestVel+" guessDist: "+guessDist+" trapTime: "+trapTime+" topTrapDist: "+trapDist+" trapTestAcc: "+trapTestAcc+
-						"\nguessTrapDist: "+guessTrapDist+" totalTime: "+totalTime+" triTime: "+endTriTime);
+						"\nguessTrapDist: "+guessTrapDist+" totalTime: "+totalTime+" triTime: "+endTriTime+" trapTestVel: "+trapTestVel);
 				if(ghostTestVel>velocityMax){
 					//trapezoid path
+					double newVelocityMax;
 					
+					double trapTriTime = (velocityMax-startVel)/acceleration;///timeStep;
+					double trapTriSteps = trapTriTime/timeStep;
+					double trapTriTimeOff = trapTriSteps%1;
+					trapTriSteps -= trapTriTimeOff;
+					if(trapTriTimeOff>=0.5){
+						trapTriSteps+=1;
+					}
+					trapTriTime = trapTriSteps*timeStep;
+					double trapDoubleTriDist = trapTriTime*(velocityMax-startVel);
+					
+					double trapTriTestAcc = trapDoubleTriDist/(trapTriTime*trapTriTime);
+					//acceleration = trapTriTestAcc;
+					
+					double trapDistLeftover = hexDist - (trapDoubleTriDist+(trapTriTime*startVel));
+					System.out.println("left: "+trapDistLeftover+" tri: "+trapDoubleTriDist);
+					double trapTimeAtMaxVel = trapDistLeftover/velocityMax;
+					double trapTotalTime = (trapTriTime)+trapTimeAtMaxVel;
+					double trapLineNum2 = trapTotalTime / timeStep;// + 1;// +1 = line of 0's
+					System.out.println("trapLineNum(unadjusted): "+trapLineNum2);
+					if (trapLineNum2%1>0){
+						if(trapLineNum2%1>=0.5){
+							trapLineNum2+=1;
+						}
+						trapLineNum2-=trapLineNum2%1;
+					}
+					trapTimeAtMaxVel = (trapLineNum2-(trapTriSteps))*timeStep;
+					trapTotalTime = (trapTriTime)+trapTimeAtMaxVel;
+					double rectDist = trapTotalTime*startVel;
+					double TRAPDIST = hexDist-rectDist;
+					double trapTestMaxVel=TRAPDIST/(trapTotalTime-(trapTriTime/2));
+					double trapTestDist = (trapTimeAtMaxVel+(trapTriTime/2))*trapTestMaxVel;
+					double hexTestDist = trapTestDist+(trapTotalTime*startVel);
+					System.out.println("trapTime: "+trapTotalTime+" trapLineNum: "+trapLineNum2+" trapTestDist: "+trapTestDist+" trapRealDist: "+trapDist+" hexTestDist: "+hexTestDist+" hexOff: "+(hexDist-hexTestDist));
+					System.out.println("triTime: "+trapTriTime+" timeAtMax: "+trapTimeAtMaxVel);
+					//change max velocity to get exact distance
+					trapTestDist=(trapTimeAtMaxVel+(trapTriTime/2))*trapTestMaxVel;
+					System.out.println("adjustedMaxVel: "+trapTestMaxVel+" adjustedTrapDist: "+trapTestDist+" trapDoubleTriDist: "+trapDoubleTriDist+" trapTriTestAcc: "+trapTriTestAcc);
+					trapDoubleTriDist = trapTriTime*(trapTestMaxVel-startVel);
+					trapTriTestAcc = (trapDoubleTriDist)/(trapTriTime*trapTriTime);
+					System.out.println("trapDoubleTriDist: "+trapDoubleTriDist+" trapTriTestAcc: "+trapTriTestAcc+" "+(trapTimeAtMaxVel*trapTestMaxVel)+" = "+(trapTestDist-trapDoubleTriDist));
 				}else{
 					//triangle path
 					
