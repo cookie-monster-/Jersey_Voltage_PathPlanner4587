@@ -11,7 +11,7 @@ public class Lines2 {
 	double acc2Lines;
 	double acc3Lines;
 	public void drawStraightPath(String filename, double totalDistance,double startVel,double endVel) {
-	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+	    String filepath = "C:/Users/4587/Desktop/pathGui/"+filename+".txt";
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double velocityMax = Constants.VEL_MAX;
@@ -230,7 +230,9 @@ public class Lines2 {
 					System.out.println("trapDoubleTriDist: "+trapDoubleTriDist+" trapTriTestAcc: "+trapTriTestAcc+" "+(trapTimeAtMaxVel*trapTestMaxVel)+" = "+(trapTestDist-trapDoubleTriDist));
 				}else{
 					//triangle path
-					
+					double trapTriMaxVel = (trapDist)/(trapTime/2);
+					double trapTriTestAcc = trapTriMaxVel/(trapTime/2);
+					System.out.println(trapTime+" "+trapTriMaxVel+" "+trapTriTestAcc);
 				}
 			}else{
 				//real startTri, ghostEndTri
