@@ -10,8 +10,9 @@ public class Lines2 {
 	double acc1Lines;
 	double acc2Lines;
 	double acc3Lines;
+	double flatAccLines;
 	public void drawStraightPath(String filename, double totalDistance,double startVel,double endVel) {
-	    String filepath = "C:/Users/4587/Desktop/pathGui/"+filename+".txt";
+	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double velocityMax = Constants.VEL_MAX;
@@ -51,6 +52,9 @@ public class Lines2 {
 		double startTriLineNum=0;
 		double endTriLineNum=0;
 		double hexDist=0;
+		
+		double trapRectLines=0;
+		double trapSingleTriLines=0;
 		/*if(startVel>0){
 			ghostTime=startVel/acceleration;
 			ghostDist=ghostTime*startVel/2;
@@ -83,6 +87,120 @@ public class Lines2 {
 			acc1Lines = startTriLineNum;
 		}else if(endVel==startVel&&startVel>0){
 			//both = and > 0
+			double ghostSingleTriTime=startVel/acceleration;
+			double ghostDoubleTriDist=startVel*ghostSingleTriTime;
+			double ghostTotalDist = ghostDoubleTriDist+totalDistance;
+			trapTime = Math.sqrt(4*ghostTotalDist/acceleration);
+			trapTime -= (ghostSingleTriTime*2);
+			trapTime = findTime(trapTime);
+			trapLineNum = trapTime/timeStep;
+			totalTime = trapTime;
+			
+			boolean goodTrap=false;
+			boolean forwards=true;
+			boolean backwards=false;
+			int i=-1;
+			while(goodTrap==false){
+				double lastError=9999999999.0;
+				int lastI=0;
+				while(forwards){
+					i++;
+					trapTime=totalTime-(i*timeStep);
+					trapTime = findTime(trapTime);
+					trapLineNum = trapTime/timeStep;
+					trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+					if(trapTime%0.04>=0.019){
+						trapTestAcc = trapDist/(((trapTime-0.02)/2)*((trapTime+0.02)/2));
+						trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+					}else{
+						trapTestAcc=(4*trapDist)/(trapTime*trapTime);
+						trapTestVel=trapTestAcc*(trapLineNum)/2*timeStep;
+					}
+					double nowError = Math.abs(trapTestAcc-acceleration);
+					if(nowError>lastError){
+						forwards=false;
+						backwards=true;
+						lastError=9999999999.0;
+						lastI=i;
+						i=-1;
+					}
+					lastError=nowError;
+				}
+				int secondLastI=0;
+				while(backwards){
+					i++;
+					trapTime=totalTime-(endTriTime*2)-(lastI*timeStep)+(i*timeStep);
+					trapTime = findTime(trapTime);
+					trapLineNum = trapTime/timeStep;
+					trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+					if(trapTime%0.04>=0.019){
+						trapTestAcc = trapDist/(((trapTime-0.02)/2)*((trapTime+0.02)/2));
+						trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+					}else{
+						trapTestAcc=(4*trapDist)/(trapTime*trapTime);
+						trapTestVel=trapTestAcc*(trapLineNum)/2*timeStep;
+					}
+					double nowError = Math.abs(trapTestAcc-acceleration);
+					if(nowError>lastError){
+						forwards=false;
+						backwards=false;
+						secondLastI=i;
+					}
+					lastError=nowError;
+				}
+				int finalI = secondLastI-lastI-1;
+				trapTime=totalTime-(endTriTime*2)+(finalI*timeStep);
+				trapTime = findTime(trapTime);
+				trapLineNum = trapTime/timeStep;
+				trapDist=(totalDistance-endTriDist)-(trapTime*startVel);
+				if(trapTime%0.04>=0.019){
+					trapTestAcc = trapDist/(((trapTime-0.02)/2)*((trapTime+0.02)/2));
+					trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
+				}else{
+					trapTestAcc=(4*trapDist)/(trapTime*trapTime);
+					trapTestVel=trapTestAcc*(trapLineNum)/2*timeStep;
+				}
+				goodTrap=true;
+			}
+			trapTestVel+=startVel;
+			
+			if(trapTestVel<=velocityMax){
+				acc1=Math.abs(trapTestAcc);
+				acc1Lines=Math.round(trapTime/2/0.02*10);
+				acc1Lines/=10;
+				acc2=-Math.abs(trapTestAcc);
+				acc2Lines=Math.round(trapTime/2/0.02*10);
+				acc2Lines/=10;
+				
+				trapLineNum=Math.round(trapTime/0.02);
+			}else{
+				double trapSingleTriTime=(velocityMax-startVel)/acceleration;
+				trapSingleTriTime=findTime(trapSingleTriTime);
+				double trapDoubleTriDist=(velocityMax-startVel)*trapSingleTriTime;
+				double trapSingleTriTestAcc=(velocityMax-startVel)/trapSingleTriTime;
+				
+				double trapDoubleTriRectDist=(trapSingleTriTime*2)*startVel;
+				double bigRectDist=totalDistance-trapDoubleTriRectDist-trapDoubleTriDist;
+				System.out.println(" bigRectDist: "+bigRectDist+" trapDoubleTriRectDist: "+trapDoubleTriRectDist+" trapDoubleTriDist: "+trapDoubleTriDist);
+				double bigRectTime=bigRectDist/velocityMax;
+				bigRectTime=findTime(bigRectTime);
+				double newMaxVel=startVel+((bigRectDist-(bigRectTime*startVel))+trapDoubleTriDist)/(bigRectTime+trapSingleTriTime);
+				trapDoubleTriDist=(newMaxVel-startVel)*trapSingleTriTime;
+				trapSingleTriTestAcc=(newMaxVel-startVel)/trapSingleTriTime;
+				bigRectDist=bigRectTime*newMaxVel;
+				
+				System.out.println("trapSingleTriTime: "+trapSingleTriTime+" trapDoubleTriDist: "+trapDoubleTriDist+" trapSingleTriTestAcc: "+trapSingleTriTestAcc+" newMaxVel: "+newMaxVel+" bigRectDist: "
+						+bigRectDist+" trapDoubleTriRectDist: "+trapDoubleTriRectDist+" trapDoubleTriDist: "+trapDoubleTriDist);
+				acc1=trapSingleTriTestAcc;
+				acc1Lines=Math.round(trapSingleTriTime/0.02);
+				acc2=-trapSingleTriTestAcc;
+				acc2Lines=Math.round(trapSingleTriTime/0.02);
+				flatAccLines=Math.round(bigRectTime/0.02);
+				trapLineNum=acc1Lines+acc2Lines+flatAccLines;
+			}
+			hexDist=totalDistance;
+			System.out.println("trapTestVel: "+trapTestVel);
+			System.out.println("acc1: "+acc1+" acc2: "+acc2+" acc1Lines: "+acc1Lines+" acc2Lines: "+acc2Lines);
 		}else{
 			//both 0
 			trapDist=totalDistance;
@@ -91,11 +209,42 @@ public class Lines2 {
 			trapTime = findTime(trapTime);
 			trapLineNum = trapTime/timeStep;
 			trapTestAcc = (4*trapDist)/(trapTime*trapTime);
+			if(trapTime%(timeStep*2)>=timeStep*0.9){
+				trapTestVel = trapTestAcc*((trapTime-timeStep)/2);
+			}else{
+				trapTestVel = trapTestAcc*(trapTime/2);
+			}
 			acc1=trapTestAcc;
 			acc2=-trapTestAcc;
 			acc1Lines=trapLineNum/2;
 			acc2Lines=trapLineNum/2;
-			System.out.println("tLines: "+trapLineNum+" acc1: "+acc1+" acc2: "+acc2);
+			System.out.println("tLines: "+trapLineNum+" acc1: "+acc1+" acc2: "+acc2+" tVel: "+trapTestVel);
+			if(trapTestVel>velocityMax){
+				//trapezoid, no triangle
+				double trapSingleTriTime = velocityMax / acceleration;
+				trapSingleTriTime = findTime(trapSingleTriTime);
+				trapSingleTriLines = trapSingleTriTime/timeStep;
+				double trapTriTestAcc = velocityMax / trapSingleTriTime;
+				double trapDoubleTriDist = velocityMax * trapSingleTriTime;
+				
+				double trapRectDist = trapDist-trapDoubleTriDist;
+				double trapRectTime = trapRectDist / velocityMax;
+				System.out.println("trapSingleTriTime: "+trapSingleTriTime+" trapTriTestAcc: "+trapTriTestAcc+" trapDoubleTriDist: "+trapDoubleTriDist+" trapRectDist: "+trapRectDist+" trapRectTime: "+trapRectTime);
+				trapRectTime = findTime(trapRectTime);
+				trapRectLines = trapRectTime/timeStep;
+				double newMaxVel = trapDist/(trapRectTime+trapSingleTriTime);
+				trapTriTestAcc = newMaxVel / trapSingleTriTime;
+				trapDoubleTriDist = newMaxVel * trapSingleTriTime;
+				trapRectDist = trapDist-trapDoubleTriDist;
+				System.out.println("ADJUSTED: trapRectTime: "+trapRectTime+" newMaxVel: "+newMaxVel+" trapTriTestAcc: "+trapTriTestAcc+" trapDoubleTriDist: "+trapDoubleTriDist+" trapRectDist: "+trapRectDist);
+
+				acc1=trapTriTestAcc;
+				acc2=-trapTriTestAcc;
+				acc1Lines=trapSingleTriLines;
+				acc2Lines=trapSingleTriLines;
+				flatAccLines=trapRectLines;
+				trapLineNum=trapRectLines+(trapSingleTriLines*2);
+			}
 		}
 		double ghostTestVel;
 		if(trapDist<totalDistance){
@@ -234,7 +383,7 @@ public class Lines2 {
 					double trapTriTestAcc = trapTriMaxVel/(trapTime/2);
 					System.out.println(trapTime+" "+trapTriMaxVel+" "+trapTriTestAcc);
 				}
-			}else{
+			}else if(endVel>startVel){
 				//real startTri, ghostEndTri
 				//trapDist=trapDist-(*endVel);
 				ghostTestVel = startTriTestAcc*(totalLineNum-1)/2*timeStep;
@@ -281,7 +430,7 @@ public class Lines2 {
 							i=-1;
 						}
 						lastError=nowError;
-						System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
+						//System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
 					}
 					int secondLastI=0;
 					while(backwards){
@@ -291,7 +440,6 @@ public class Lines2 {
 						trapLineNum = trapTime/timeStep;
 						trapDist=(totalDistance-startTriDist)-(trapTime*endVel);
 						if(trapTime%(timeStep*2)>=timeStep*0.99){
-							System.out.println("oddddd");
 							trapTestAcc = trapDist/(((trapTime-timeStep)/2)*((trapTime+timeStep)/2));
 							trapTestVel=trapTestAcc*(trapLineNum-1)/2*timeStep;
 						}else{
@@ -305,7 +453,7 @@ public class Lines2 {
 							secondLastI=i;
 						}
 						lastError=nowError;
-						System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
+						//System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
 					}
 					int finalI = secondLastI-lastI-1;
 					trapTime=totalTime-(startTriTime*2)+(finalI*timeStep);
@@ -320,7 +468,7 @@ public class Lines2 {
 						trapTestVel=trapTestAcc*(trapLineNum)/2*timeStep;
 					}
 					goodTrap=true;
-					System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
+					//System.out.println("tAcc: "+trapTestAcc+" tVel: "+trapTestVel+" tTime: "+trapTime+" tDist: "+trapDist);
 				}
 				double guessTrapDist=trapTestVel*trapTime;
 				hexDist=trapDist+(trapTime*endVel);
@@ -394,32 +542,6 @@ public class Lines2 {
 		
 		trapTestVel = trapTestAcc*((trapLineNum-1)/2)*timeStep;
 		double triSteps=0;
-		if(trapTestVel>velocityMax){
-			//is trapezoid, not triangle
-			triTime = (velocityMax/acceleration);///timeStep;
-			triSteps = triTime/timeStep;
-			double triTimeOff = triSteps%1;
-			triSteps -= triTimeOff;
-			if(triTimeOff>=0.5){
-				triSteps+=1;
-			}
-			triTime = triSteps*timeStep;
-			doubleTriDist = triTime*velocityMax;
-			
-			trapTestAcc = (doubleTriDist)/(triTime*triTime);
-			acceleration = trapTestAcc;
-			
-			distLeftover = totalDistance - doubleTriDist;
-			timeAtMaxVel = distLeftover/velocityMax;
-			/*totalTime = (triTime*2)+timeAtMaxVel;
-			trapLineNum = totalTime / timeStep + 1;// +1 = line of 0's
-			if (trapLineNum%1>0){
-				if(trapLineNum%1>=0.5){
-					trapLineNum+=1;
-				}
-				lineNum-=lineNum%1;
-			}*/
-		}
 		double testVel =0;
 		if(Math.abs(hexDist)<=0.01){
 			System.out.println("ERROR: HexDist is: "+hexDist);
@@ -437,6 +559,7 @@ public class Lines2 {
 			return;
 		}
 		double lineNum=endTriLineNum+startTriLineNum+trapLineNum+1;//zero line
+		lineNum = Math.round(lineNum);
 		System.out.println("endTLine: "+endTriLineNum+" startTLine: "+startTriLineNum+" trapLine: "+trapLineNum);
 		double testAcc=0;
 		System.out.println("testVel: "+testVel+" overMaxVel? "+(testVel>velocityMax)+" steps: "+triSteps+" doubleTriDist: "+doubleTriDist+" timeAtMaxVel: "+timeAtMaxVel);
@@ -612,22 +735,44 @@ public class Lines2 {
 	private double findAcc(double line){
 		if(line<=acc1Lines){
 			return acc1;
-		}else if(Math.abs(acc2Lines%1-0.5)<=0.1){//should be 0.5
-			if(Math.abs(Math.abs(line-0.5)-acc1Lines)<=0.1){
-				return 0.0;
-			}else if(Math.abs(Math.abs(line-0.5)-(acc1Lines+acc2Lines))<=0.1){
-				return 0.0;
-			}else if(line<=acc1Lines+acc2Lines){
-				return acc2;
+		}else if(flatAccLines>0){
+			if(acc1==-acc2){
+				if(line<=acc1Lines+flatAccLines){
+					return 0.0;
+				}else {
+					if(line<=acc1Lines+flatAccLines+acc2Lines){
+						return acc2;
+					}else{
+						return acc3;
+					}
+				}
 			}else{
-				return acc3;
+				//(acc3==-acc2)
+				if(line<=acc1Lines+acc2Lines){
+					return acc2;
+				}else if(line<=acc1Lines+acc2Lines+flatAccLines){
+					return 0.0;
+				}else{
+					return acc3;
+				}
 			}
 		}else{
-			System.out.println(acc2Lines%1);
-			if(line<=acc1Lines+acc2Lines){
-				return acc2;
+			if(Math.abs(acc2Lines%1-0.5)<=0.1){//should be 0.5
+				if(Math.abs(Math.abs(line-0.5)-acc1Lines)<=0.1){
+					return 0.0;
+				}else if(Math.abs(Math.abs(line-0.5)-(acc1Lines+acc2Lines))<=0.1){
+					return 0.0;
+				}else if(line<=acc1Lines+acc2Lines){
+					return acc2;
+				}else{
+					return acc3;
+				}
 			}else{
-				return acc3;
+				if(line<=acc1Lines+acc2Lines){
+					return acc2;
+				}else{
+					return acc3;
+				}
 			}
 		}
 	}
