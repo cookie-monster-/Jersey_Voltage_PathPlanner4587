@@ -3,7 +3,7 @@ package main;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class Lines2 {
+public class Arcs2 {
 	double acc1;
 	double acc2;
 	double acc3;
@@ -11,8 +11,10 @@ public class Lines2 {
 	double acc2Lines;
 	double acc3Lines;
 	double flatAccLines;
-	public void drawStraightPath(String filename, double totalDistance,double startVel,double endVel) {
+	public void drawArcPath(String filename,double totalDegrees,double radius,double startVel,double endVel) {
 	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+		//double totalDegrees = 900;
+	    double totalDistance=(2*Math.PI*radius)*(totalDegrees/360);
 	    Writer w = new Writer();
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
@@ -641,16 +643,14 @@ public class Lines2 {
 		System.out.println("testVel: "+testVel+" overMaxVel? "+(testVel>velocityMax)+" steps: "+triSteps+" doubleTriDist: "+doubleTriDist+" timeAtMaxVel: "+timeAtMaxVel);
 		System.out.println("distLeftover: "+distLeftover);
 		System.out.println("dist: "+totalDistance+" time: "+totalTime+" timeOff: "+timeOff+" lineNum: "+lineNum+" testAcc: "+testAcc);
-		//FileWriter m_writer;
-	    /*try {
-			m_writer = new FileWriter(filepath, false);
-			m_writer.write(filename + "\n" + (int)lineNum + "\n");
-		} catch ( IOException e ) {
-			System.out.println(e);
-			m_writer = null;
-		}*/
-	    double accLast=0;
+
+		double radians;
+		//double lastRadians=0;
+		double radDelta;
+		//double lastRadDelta=0;
+		double radiansList[]=new double[(int)lineNum];
 	    //first side
+		double accLast=0;
 	    y=-wheelbase/24;//-1.125;
 	    x=0.0;
 	    boolean hitMaxVel=false;
@@ -659,7 +659,14 @@ public class Lines2 {
 				acc = findAcc(line);
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
-				Double[] accVel = {accLast,velLast,0.0};
+				radians = posNow/radius;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
+				radiansList[line]=radians;
+				if(line>1){
+					radDelta=(radiansList[line-2]-radiansList[line-1])*-1;
+				}else{
+					radDelta=0;
+				}
+				Double[] accVel = {accLast,velLast,radDelta};
 				accLast=acc;
 				if(Main.firstStep==false){
 					if(line > 1){
@@ -668,57 +675,46 @@ public class Lines2 {
 				}else{
 					w.addLeftAcc(accVel);
 				}
-				//radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
+				
+				//radians = (180*posNow)/(Math.PI*radius)*(Math.PI/180);
 				//x+=Math.sin(radians)*(posNow-posLast);
 				//y+=Math.cos(radians)*(posNow-posLast);
 				
 				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-				double startAngle = -Math.PI/2;//Math.PI/2;
-				//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-				//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-				x = posNow;
-				y = -wheelbase/24;
+				double startAngle = Math.PI/2;//Math.PI/2;
+				startAngle =0;
+				//x=-wheelbase/24 - radius*Math.sin(startAngle)+radius*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+				//y=0.0 + radius/24*Math.cos(startAngle)+radius/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+				x=Math.sin(radians)*radius;
+				y=-wheelbase/24+radius-Math.cos(radians)*radius;
+				//x = posNow;
+				//y = -wheelbase/24;
 				if(velLast>velNow){
 					hitMaxVel=true;
 				}
 				velLast = velNow;
 				posLast = posNow;
 				
-			 //   if(m_writer != null){try{
-				//		m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+0+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
-					//}catch(Exception e){}}
-
-			    /*if(hitMaxVel){
-			    	if(velNow<=endVel+0.011){
-				    	lineNum=line+1;
-						System.out.println("---left side---");
-						System.out.println("posNow: "+posNow);
-						System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-			    	}else if(velNow<=0.011){
-				    	lineNum=line+1;
-						System.out.println("---left side---");
-						System.out.println("posNow: "+posNow);
-						System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-				    }else if(line+1==lineNum){//last one
-						if(velNow>=0.01){
-							lineNum+=1;
-						}else{
-							System.out.println("---left side---");
-							System.out.println("posNow: "+posNow);
-							System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-						}
-					}
-			    }*/
-			    if(line+1==lineNum){//last one
-					System.out.println("---left side---");
+			   // if(m_writer != null){try{
+			//			m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
+			//		}catch(Exception e){}}
+	
+				if(line+1==lineNum){//last one
+					System.out.println("left side");
 					System.out.println("posNow: "+posNow);
 					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-					Double[] accVel2 = {accLast,velLast,0.0};
+					String radList="";
+					for(int i=0;i<=lineNum-1;i++){
+						radList=radList+radiansList[i]+" ";
+					}
+					System.out.println("radiansList: "+radList);
+					radDelta=(radiansList[line]-radiansList[line-1])*-1;
+					Double[] accVel2 = {accLast,velLast,radDelta};
 					w.addLeftAcc(accVel2);
 				}
 			}else{
-	//			 if(m_writer != null){try{
-//						m_writer.write("0 "+startVel+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
+		//		 if(m_writer != null){try{
+		//				m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 		//			}catch(Exception e){}}
 			}
 		}
@@ -726,17 +722,24 @@ public class Lines2 {
 	    y=wheelbase/24;//1.125;
 	    x=0.0;
 		posLast =0.0;
-		accLast=0;
 		velLast=startVel;
+		radius-=(wheelbase/12);
+		accLast=0;
 		for(int line = 0;line < lineNum;line++){
 			if(line != 0){
-				acc = findAcc(line);
+				radians = radiansList[line];
+				posNow =radius*radians;
+				velNow = ((posNow-posLast)/timeStep)*2-velLast;
+				//acc = findAcc(lineNum,line,triSteps,acceleration);
+				acc = (velNow-velLast)/timeStep;
+				if(line>1){
+					radDelta=(radiansList[line-2]-radiansList[line-1])*-1;
+				}else{
+					radDelta=0;
+				}
 				Double accel = accLast;
-				accLast=acc;
-				velNow = velLast + acc * timeStep;
-				posNow = posLast + (velLast + velNow)/2 * timeStep;
 				Double velNowx = velLast;
-				Double[] accVel = {accel,velNowx,0.0};
+				Double[] accVel = {accel,velNowx,radDelta};
 				
 
 				if(Main.firstStep==false){
@@ -746,81 +749,48 @@ public class Lines2 {
 				}else{
 					w.addRightAcc(accVel);
 				}
-				//radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
+				
+				//velNow = velLast + acc * timeStep;
+				//posNow = posLast + (velLast + velNow)/2 * timeStep;
+				//radians = posNow/radius;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
+				
 				//x+=Math.sin(radians)*(posNow-posLast);
 				//y+=Math.cos(radians)*(posNow-posLast);
 				
 				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-				double startAngle = -Math.PI/2;//Math.PI/2;
-				//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-				//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-				x = posNow;
-				y = wheelbase/24;
+				double startAngle = Math.PI/2;//Math.PI/2;
+				//x=wheelbase/24 + radius/24*Math.sin(startAngle)+radius/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+				//y=0.0 + radius/24*Math.cos(startAngle)+radius/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+				//x = posNow;
+				//y = wheelbase/24;
+				x=Math.sin(radians)*radius;
+				y=wheelbase/24+radius-Math.cos(radians)*radius;
 				velLast = velNow;
 				posLast = posNow;
 				
-		//	    if(m_writer != null){try{
-		//				m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+0+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
+			//    if(m_writer != null){try{
+			//			m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 		//			}catch(Exception e){}}
 	
 				if(line+1==lineNum){//last one
-					System.out.println("---right side---");
+					System.out.println("left side");
 					System.out.println("posNow: "+posNow);
 					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-					Double[] accVel2 = {accLast,velLast,0.0};
+					radDelta=(radiansList[line]-radiansList[line-1])*-1;
+					Double[] accVel2 = {accLast,velLast,radDelta};
 					w.addRightAcc(accVel2);
 				}
 			}else{
-	//			 if(m_writer != null){try{
-	//					m_writer.write("0 "+startVel+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
+		//		 if(m_writer != null){try{
+		//				m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 	//				}catch(Exception e){}}
 			}
 		}
+
 		Main.firstStep=false;
-	//	try{m_writer.close();System.out.println("Wrote to "+filepath);}catch(Exception e){}
+		//try{m_writer.close();System.out.println("Wrote to "+filepath);}catch(Exception e){}
 	}
 	
-	/*private double findAcc(double lineNum, double line, double triSteps,double acceleration){
-		double acc;
-		if(triSteps>0){
-			if(lineNum%2==0){
-				if (line<triSteps+1){
-					acc=acceleration;
-				}else if(line>lineNum-triSteps){
-					acc=-acceleration;
-				}else{
-					acc=0;
-				}
-			}else{
-				if (line<=triSteps){
-					acc=acceleration;
-				}else if(line>lineNum-triSteps-1){
-					acc=-acceleration;
-				}else{
-					acc=0;
-				}
-			}
-		}else{
-			if(lineNum%2==0){
-				if (line<lineNum/2){
-					acc=acceleration;
-				}else if(line>lineNum/2){
-					acc=-acceleration;
-				}else{
-					acc=0;//0
-				}
-			}else{
-				if(line==lineNum/2+0.5){
-					acc=-acceleration;//0
-				}else if (line<lineNum/2){
-					acc=acceleration;
-				}else{//line>lineNum
-					acc=-acceleration;
-				}
-			}
-		}
-		return acc;
-	}*/
 	private double findAcc(double line){
 		if(line<=acc1Lines){
 			return acc1;

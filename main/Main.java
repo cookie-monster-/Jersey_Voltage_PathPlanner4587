@@ -6,13 +6,18 @@ import java.io.IOException;
 
 public class Main {
 	// Get everything set up
-	
+	public static boolean firstStep = false;
 	public static void main(String[] args){
 	    Circles c = new Circles();
 		//c.drawCirclePath("testPath", 90);
 		Lines2 l = new Lines2();
-		l.drawStraightPath("testPath", 20.0,5.0,5.0);
-		Arcs a = new Arcs();
+		Arcs2 a = new Arcs2();
+		l.drawStraightPath("testPath", 1.0,0.0,2.0);
+		a.drawArcPath("testPath", 90, 10, 2.0, 2.0);
+		l.drawStraightPath("testPath", 3.0,2.0,0.0);
 		//a.drawArcPath("testPath",90, 5);
+		Writer w = new Writer();
+		//w.printArrays();
+		w.writeFile("banana");
 	}
 }
