@@ -34,7 +34,7 @@ public class Writer {
 		FileWriter m_writer;
 		try {
 			m_writer = new FileWriter(filepath, false);
-			m_writer.write(filename + "\n" + (int)lineNum + "\n");
+			m_writer.write(filename + "\n" + ((int)lineNum+1) + "\n");
 		} catch ( IOException e ) {
 			System.out.println(e);
 			m_writer = null;
@@ -54,13 +54,16 @@ public class Writer {
 
 	    y=-wheelbase/24;//-1.125;
 	    x=0.0;
-		for(int line = 0;line < lineNum;line++){
-			if(line != 0){
+	    double startX=x;
+	    double startY=y;
+	    double startAngle=0.0;
+		for(int line = -1;line < lineNum;line++){
+			if(line >= 0){
 				Double[] accVel = leftAccs.get(line);
 				acc=accVel[0];
 				velNow = accVel[1];
 				radDelta = accVel[2];	
-				//radius = accVel[3];
+				radius = accVel[3];
 				radians+=radDelta;
 					//System.out.println("acc: "+acc+" vel: "+velNow);
 					posNow = posLast + (velLast + velNow)/2 * timeStep;
@@ -69,13 +72,24 @@ public class Writer {
 					//y+=Math.cos(radians)*(posNow-posLast);
 					
 					//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-					double startAngle = -Math.PI/2;//Math.PI/2;
+					//double startAngle = -Math.PI/2;//Math.PI/2;
 					//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 					//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 					//x = posNow;
 					//y = -wheelbase/24;
 					//x=Math.sin(radians)*radius;
 					//y=wheelbase/24+radius-Math.cos(radians)*radius;
+					double deltaPos=posNow-posLast;
+					if(radius>0){
+						x=startX+radius*(Math.sin(0)+Math.sin(radians));
+						y=startY+radius*(Math.cos(0)-Math.cos(radians));
+						startAngle=radians;
+					}else{
+						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
+						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
+						startX=x;
+						startY=y;
+					}
 					velLast = velNow;
 					posLast = posNow;
 					
@@ -90,13 +104,14 @@ public class Writer {
 					}*/
 				
 			}else{
-				Double[] accVel = rightAccs.get(line);
+				/*Double[] accVel = leftAccs.get(line);
 				acc = accVel[0];
 				velNow = accVel[1];
-				velLast = velNow - acc*timeStep;
+				velLast = velNow - acc*timeStep;*/
 				 if(m_writer != null){try{
-						m_writer.write("0 "+velLast+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
+						m_writer.write("0 "+0+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 					}catch(Exception e){}}
+				
 			}
 			
 		}
@@ -104,13 +119,17 @@ public class Writer {
 	    x=0.0;
 	    posLast=0;
 	    radians=0;
-		for(int line = 0;line < lineNum;line++){
-			if(line != 0){
+	    startX=x;
+	    startY=y;
+	    startAngle=0.0;
+		velLast=0;
+		for(int line = -1;line < lineNum;line++){
+			if(line >= 0){
 				Double[] accVel = rightAccs.get(line);
 				acc = accVel[0];
 				velNow = accVel[1];
 				radDelta = accVel[2];
-				//radius = accVel[3];
+				radius = accVel[3];
 				radians+=radDelta;
 				//System.out.println("acc: "+acc+" vel: "+velNow);
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
@@ -119,13 +138,24 @@ public class Writer {
 				//y+=Math.cos(radians)*(posNow-posLast);
 				
 				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-				double startAngle = -Math.PI/2;//Math.PI/2;
+				//double startAngle = -Math.PI/2;//Math.PI/2;
 				//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 				//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 				//x = posNow;
 				//y = wheelbase/24;
 				//x=Math.sin(radians)*radius;
 				//y=wheelbase/24+radius-Math.cos(radians)*radius;
+				double deltaPos=posNow-posLast;
+				if(radius>0){
+					x=startX+radius*(Math.sin(0)+Math.sin(radians));
+					y=startY+radius*(Math.cos(0)-Math.cos(radians));
+					startAngle=radians;
+				}else{
+					y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
+					x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
+					startX=x;
+					startY=y;
+				}
 				velLast = velNow;
 				posLast = posNow;
 				
@@ -139,12 +169,12 @@ public class Writer {
 					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
 				}*/
 			}else{
-				Double[] accVel = rightAccs.get(line);
+				/*Double[] accVel = rightAccs.get(line);
 				acc = accVel[0];
 				velNow = accVel[1];
-				velLast = velNow - acc*timeStep;
+				velLast = velNow - acc*timeStep;*/
 				 if(m_writer != null){try{
-						m_writer.write("0 "+velLast+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
+						m_writer.write("0 "+0+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 					}catch(Exception e){}}
 			}
 		}

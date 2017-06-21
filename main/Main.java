@@ -12,10 +12,13 @@ public class Main {
 		//c.drawCirclePath("testPath", 90);
 		Lines2 l = new Lines2();
 		Arcs2 a = new Arcs2();
-		l.drawStraightPath("testPath", 1.0,0.0,2.0);
+		
+		
+		l.drawStraightPath("testPath", 2.0,0.0,2.0);
 		a.drawArcPath("testPath", 90, 10, 2.0, 2.0);
 		l.drawStraightPath("testPath", 3.0,2.0,0.0);
-		//a.drawArcPath("testPath",90, 5);
+		
+		
 		Writer w = new Writer();
 		//w.printArrays();
 		w.writeFile("banana");

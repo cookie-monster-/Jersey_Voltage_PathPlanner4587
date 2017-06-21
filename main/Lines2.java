@@ -260,7 +260,8 @@ public class Lines2 {
 				//real endTri, ghostStartTri
 				totalTime = Math.sqrt(4*(totalDistance+endTriDist)/acceleration);
 				totalTime = findTime(totalTime);
-				totalLineNum = findLineNum(totalTime);
+				totalLineNum = Math.round(totalTime/0.02*10);
+				totalLineNum/=10;
 				
 				boolean goodTrap=false;
 				boolean forwards=true;
@@ -441,7 +442,8 @@ public class Lines2 {
 				//real endTri, ghostStartTri
 				totalTime = Math.sqrt(4*(totalDistance+startTriDist)/acceleration);
 				totalTime = findTime(totalTime);
-				totalLineNum = findLineNum(totalTime);
+				totalLineNum = Math.round(totalTime/0.02*10);
+				totalLineNum/=10;
 				
 				boolean goodTrap=false;
 				boolean forwards=true;
@@ -634,7 +636,7 @@ public class Lines2 {
 			System.out.println("ERROR: Bad Path - hexDist: "+hexDist+"ft");
 			return;
 		}
-		double lineNum=endTriLineNum+startTriLineNum+trapLineNum+1;//zero line
+		double lineNum=endTriLineNum+startTriLineNum+trapLineNum;//zero line
 		lineNum = Math.round(lineNum);
 		System.out.println("endTLine: "+endTriLineNum+" startTLine: "+startTriLineNum+" trapLine: "+trapLineNum);
 		double testAcc=0;
@@ -649,40 +651,51 @@ public class Lines2 {
 			System.out.println(e);
 			m_writer = null;
 		}*/
-	    double accLast=0;
 	    //first side
 	    y=-wheelbase/24;//-1.125;
 	    x=0.0;
 	    boolean hitMaxVel=false;
+		velLast=startVel;
 		for(int line = 0;line < lineNum;line++){
-			if(line != 0){
 				acc = findAcc(line);
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
-				Double[] accVel = {accLast,velLast,0.0};
-				accLast=acc;
-				if(Main.firstStep==false){
-					if(line > 1){
-						w.addLeftAcc(accVel);
+				if(line==0){
+					System.out.println(acc+" "+velNow);
+				}
+				Double[] list = {acc,velNow,0.0,0.0};
+				w.addLeftAcc(list);
+				/*if(Main.firstStep==false){
+					if(line > 0){
+						w.addLeftAcc(list);
 					}
 				}else{
-					w.addLeftAcc(accVel);
+					w.addLeftAcc(list);
+				}*/
+				
+				velLast = velNow;
+				posLast = posNow;
+			    if(line+1==lineNum){//last one
+					System.out.println("---left side---");
+					System.out.println("posNow: "+posNow);
+					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
+					//Double[] accVel2 = {acc,velNow,0.0,0.0};
+					//w.addLeftAcc(accVel2);
 				}
+			    
 				//radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
-				//x+=Math.sin(radians)*(posNow-posLast);
+			    
+			    //x+=Math.sin(radians)*(posNow-posLast);
 				//y+=Math.cos(radians)*(posNow-posLast);
 				
 				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-				double startAngle = -Math.PI/2;//Math.PI/2;
 				//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 				//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 				x = posNow;
 				y = -wheelbase/24;
-				if(velLast>velNow){
-					hitMaxVel=true;
-				}
-				velLast = velNow;
-				posLast = posNow;
+				/*if(velLast>velNow){
+				hitMaxVel=true;
+			}*/
 				
 			 //   if(m_writer != null){try{
 				//		m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+0+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
@@ -709,127 +722,76 @@ public class Lines2 {
 						}
 					}
 			    }*/
-			    if(line+1==lineNum){//last one
-					System.out.println("---left side---");
-					System.out.println("posNow: "+posNow);
-					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-					Double[] accVel2 = {accLast,velLast,0.0};
-					w.addLeftAcc(accVel2);
-				}
-			}else{
+		
+			//}else{
 	//			 if(m_writer != null){try{
 //						m_writer.write("0 "+startVel+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 		//			}catch(Exception e){}}
-			}
+			//}
 		}
 		//second side
 	    y=wheelbase/24;//1.125;
 	    x=0.0;
 		posLast =0.0;
-		accLast=0;
 		velLast=startVel;
 		for(int line = 0;line < lineNum;line++){
-			if(line != 0){
 				acc = findAcc(line);
-				Double accel = accLast;
-				accLast=acc;
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
-				Double velNowx = velLast;
-				Double[] accVel = {accel,velNowx,0.0};
+				Double[] list = {acc,velNow,0.0,0.0};
 				
 
-				if(Main.firstStep==false){
-					if(line > 1){
-						w.addRightAcc(accVel);
+				w.addRightAcc(list);
+				/*if(Main.firstStep==false){
+					if(line > 0){
+						w.addRightAcc(list);
 					}
 				}else{
-					w.addRightAcc(accVel);
+					w.addRightAcc(list);
+				}*/
+				velLast = velNow;
+				posLast = posNow;
+
+				if(line+1==lineNum){//last one
+					System.out.println("---right side---");
+					System.out.println("posNow: "+posNow);
+					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
+					//Double[] list2 = {acc,velLast,0.0,0.0};
+					//w.addRightAcc(list2);
 				}
 				//radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
 				//x+=Math.sin(radians)*(posNow-posLast);
 				//y+=Math.cos(radians)*(posNow-posLast);
 				
 				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-				double startAngle = -Math.PI/2;//Math.PI/2;
 				//x=-wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
 				//y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-				x = posNow;
-				y = wheelbase/24;
-				velLast = velNow;
-				posLast = posNow;
+				//x = posNow;
+				//y = wheelbase/24;
 				
 		//	    if(m_writer != null){try{
 		//				m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+0+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 		//			}catch(Exception e){}}
-	
-				if(line+1==lineNum){//last one
-					System.out.println("---right side---");
-					System.out.println("posNow: "+posNow);
-					System.out.println("posError: "+(totalDistance-Math.abs(posNow)));
-					Double[] accVel2 = {accLast,velLast,0.0};
-					w.addRightAcc(accVel2);
-				}
-			}else{
+			
+		//	}else{
 	//			 if(m_writer != null){try{
 	//					m_writer.write("0 "+startVel+" 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 	//				}catch(Exception e){}}
-			}
+			//}
 		}
 		Main.firstStep=false;
 	//	try{m_writer.close();System.out.println("Wrote to "+filepath);}catch(Exception e){}
+		System.out.println("acc1Lines: "+acc1Lines+" acc2Lines: "+acc2Lines+" acc3Lines: "+acc3Lines+" flatAccLines: "+flatAccLines);
 	}
-	
-	/*private double findAcc(double lineNum, double line, double triSteps,double acceleration){
-		double acc;
-		if(triSteps>0){
-			if(lineNum%2==0){
-				if (line<triSteps+1){
-					acc=acceleration;
-				}else if(line>lineNum-triSteps){
-					acc=-acceleration;
-				}else{
-					acc=0;
-				}
-			}else{
-				if (line<=triSteps){
-					acc=acceleration;
-				}else if(line>lineNum-triSteps-1){
-					acc=-acceleration;
-				}else{
-					acc=0;
-				}
-			}
-		}else{
-			if(lineNum%2==0){
-				if (line<lineNum/2){
-					acc=acceleration;
-				}else if(line>lineNum/2){
-					acc=-acceleration;
-				}else{
-					acc=0;//0
-				}
-			}else{
-				if(line==lineNum/2+0.5){
-					acc=-acceleration;//0
-				}else if (line<lineNum/2){
-					acc=acceleration;
-				}else{//line>lineNum
-					acc=-acceleration;
-				}
-			}
-		}
-		return acc;
-	}*/
 	private double findAcc(double line){
-		if(line<=acc1Lines){
+		if(line<=acc1Lines-1){
 			return acc1;
 		}else if(flatAccLines>0){
 			if(acc1==-acc2){
-				if(line<=acc1Lines+flatAccLines){
+				if(line<acc1Lines+flatAccLines){
 					return 0.0;
 				}else {
-					if(line<=acc1Lines+flatAccLines+acc2Lines){
+					if(line<acc1Lines+flatAccLines+acc2Lines){
 						return acc2;
 					}else{
 						return acc3;
@@ -837,9 +799,9 @@ public class Lines2 {
 				}
 			}else{
 				//(acc3==-acc2)
-				if(line<=acc1Lines+acc2Lines){
+				if(line<acc1Lines+acc2Lines){
 					return acc2;
-				}else if(line<=acc1Lines+acc2Lines+flatAccLines){
+				}else if(line<acc1Lines+acc2Lines+flatAccLines){
 					return 0.0;
 				}else{
 					return acc3;
@@ -847,17 +809,19 @@ public class Lines2 {
 			}
 		}else{
 			if(Math.abs(acc2Lines%1-0.5)<=0.1){//should be 0.5
-				if(Math.abs(Math.abs(line-0.5)-acc1Lines)<=0.1){
+				if(Math.abs(Math.abs(line-0.5)-acc1Lines+1)<=0.1){
 					return 0.0;
-				}else if(Math.abs(Math.abs(line-0.5)-(acc1Lines+acc2Lines))<=0.1){
+				}else if(Math.abs(Math.abs(line-0.5)-(acc1Lines+acc2Lines-1))<=0.1){
 					return 0.0;
-				}else if(line<=acc1Lines+acc2Lines){
+				}else if(line<=acc1Lines+acc2Lines-1){
+					//System.out.println("line: "+line+" acc1Lines+acc2Lines: "+(acc1Lines+acc2Lines)+" ? "+(line<=acc1Lines+acc2Lines));
 					return acc2;
 				}else{
 					return acc3;
 				}
 			}else{
-				if(line<=acc1Lines+acc2Lines){
+				System.out.println("hi");
+				if(line<acc1Lines+acc2Lines){
 					return acc2;
 				}else{
 					return acc3;
@@ -879,10 +843,5 @@ public class Lines2 {
 		time=Math.round(time);
 		time/=100;
 		return time;
-	}
-	private double findLineNum(double time){
-		double timeStep = Constants.TIMESTEP;
-		double lineNum = time / timeStep + 1;// +1 = line of 0's
-		return lineNum;
 	}
 }
