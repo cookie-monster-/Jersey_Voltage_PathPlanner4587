@@ -80,15 +80,29 @@ public class Writer {
 					//x=Math.sin(radians)*radius;
 					//y=wheelbase/24+radius-Math.cos(radians)*radius;
 					double deltaPos=posNow-posLast;
-					if(radius>0){
-						x=startX+radius*(Math.sin(0)+Math.sin(radians));
-						y=startY+radius*(Math.cos(0)-Math.cos(radians));
-						startAngle=radians;
+
+					if(radians<0){
+						if(radius>0){
+							x=startX-radius*(Math.sin(0)+Math.sin(radians));
+							y=startY-radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+						}else{
+							y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
+							x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
+							startX=x;
+							startY=y;
+						}
 					}else{
-						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
-						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
-						startX=x;
-						startY=y;
+						if(radius>0){
+							x=startX+radius*(Math.sin(0)+Math.sin(radians));
+							y=startY+radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+						}else{
+							y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
+							x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
+							startX=x;
+							startY=y;
+						}
 					}
 					velLast = velNow;
 					posLast = posNow;
@@ -146,15 +160,28 @@ public class Writer {
 				//x=Math.sin(radians)*radius;
 				//y=wheelbase/24+radius-Math.cos(radians)*radius;
 				double deltaPos=posNow-posLast;
-				if(radius>0){
-					x=startX+radius*(Math.sin(0)+Math.sin(radians));
-					y=startY+radius*(Math.cos(0)-Math.cos(radians));
-					startAngle=radians;
+				if(radians<0){
+					if(radius>0){
+						x=startX-radius*(Math.sin(0)+Math.sin(radians));
+						y=startY-radius*(Math.cos(0)-Math.cos(radians));
+						startAngle=radians;
+					}else{
+						y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
+						x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
+						startX=x;
+						startY=y;
+					}
 				}else{
-					y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
-					x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
-					startX=x;
-					startY=y;
+					if(radius>0){
+						x=startX+radius*(Math.sin(0)+Math.sin(radians));
+						y=startY+radius*(Math.cos(0)-Math.cos(radians));
+						startAngle=radians;
+					}else{
+						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
+						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
+						startX=x;
+						startY=y;
+					}
 				}
 				velLast = velNow;
 				posLast = posNow;
