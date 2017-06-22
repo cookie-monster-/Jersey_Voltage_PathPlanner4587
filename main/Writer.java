@@ -30,7 +30,7 @@ public class Writer {
 	
 	public void writeFile(String filename){
 		double lineNum = leftAccs.size();
-		String filepath="C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+		String filepath=Constants.FILEPATH+filename+".txt";
 		FileWriter m_writer;
 		try {
 			m_writer = new FileWriter(filepath, false);

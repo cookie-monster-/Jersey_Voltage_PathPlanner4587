@@ -14,13 +14,13 @@ public class Main {
 		Arcs2 a = new Arcs2();
 		
 		
-		l.drawStraightPath("testPath", 2.0,0.0,2.0);
-		a.drawArcPath("testPath", 90, 10, 2.0, 2.0);
-		l.drawStraightPath("testPath", 3.0,2.0,0.0);
+		l.drawStraightPath(3.7916666665,0.0,2.5);//3.875
+		a.drawArcPath(60, 7.125, 2.5, 0.5);
+		l.drawStraightPath(0.04166666667,0.5,0.0);
 		
 		
 		Writer w = new Writer();
 		//w.printArrays();
-		w.writeFile("banana");
+		w.writeFile("testPath");
 	}
 }
