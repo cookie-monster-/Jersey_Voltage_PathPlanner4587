@@ -11,10 +11,17 @@ public class Lines {
 	double acc2Lines;
 	double acc3Lines;
 	double flatAccLines;
+	boolean backwards;
 	public void drawStraightPath(double totalDistance,double startVel,double endVel) {
 		String filename = "banana";
 	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
 	    Writer w = new Writer();
+	    if(totalDistance<0){
+	    	totalDistance *= -1;
+	    	backwards = true;
+	    }else{
+	    	backwards = false;
+	    }
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double velocityMax = Constants.VEL_MAX;
@@ -664,8 +671,13 @@ public class Lines {
 				if(line==0){
 					//System.out.println(acc+" "+velNow);
 				}
-				Double[] list = {acc,velNow,0.0,0.0};
-				w.addLeftAcc(list);
+				if(backwards){
+					Double[] list = {-acc,-velNow,0.0,0.0};
+					w.addLeftAcc(list);
+				}else{
+					Double[] list = {acc,velNow,0.0,0.0};
+					w.addLeftAcc(list);
+				}
 				/*if(Main.firstStep==false){
 					if(line > 0){
 						w.addLeftAcc(list);
@@ -739,10 +751,13 @@ public class Lines {
 				acc = findAcc(line);
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
-				Double[] list = {acc,velNow,0.0,0.0};
-				
-
-				w.addRightAcc(list);
+				if(backwards){
+					Double[] list = {-acc,-velNow,0.0,0.0};
+					w.addRightAcc(list);
+				}else{
+					Double[] list = {acc,velNow,0.0,0.0};
+					w.addRightAcc(list);
+				}
 				/*if(Main.firstStep==false){
 					if(line > 0){
 						w.addRightAcc(list);

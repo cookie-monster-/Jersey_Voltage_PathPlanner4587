@@ -20,11 +20,11 @@ public class Writer {
 		System.out.println(leftAccs);
 		for(int x =0;x<leftAccs.size();x++){
 			Double[] q = leftAccs.get(x);
-			System.out.println(q[0]+","+q[1]);
+			System.out.println(q[0]+","+q[1]+","+q[2]+","+q[3]);
 		}
 		for(int x =0;x<rightAccs.size();x++){
 			Double[] q = rightAccs.get(x);
-			System.out.println(q[0]+","+q[1]);
+			System.out.println(q[0]+","+q[1]+","+q[2]+","+q[3]);
 		}
 	}
 	
@@ -57,6 +57,7 @@ public class Writer {
 	    double startX=x;
 	    double startY=y;
 	    double startAngle=0.0;
+		double radmul = 1;
 		for(int line = -1;line < lineNum;line++){
 			if(line >= 0){
 				Double[] accVel = leftAccs.get(line);
@@ -83,9 +84,17 @@ public class Writer {
 
 					if(radians<0){
 						if(radius>0){
-							x=startX-radius*(Math.sin(0)+Math.sin(radians));
-							y=startY-radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
+							if(velNow<0.000254){
+								x=startX+radius*(Math.sin(0)+Math.sin(radians));
+								y=startY-radius*(Math.cos(0)-Math.cos(radians));
+								startAngle=radians;
+								radmul = -1;
+							}else{
+								x=startX-radius*(Math.sin(0)+Math.sin(radians));
+								y=startY-radius*(Math.cos(0)-Math.cos(radians));
+								startAngle=radians;
+								radmul = 1;
+							}
 						}else{
 							y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
 							x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
@@ -94,9 +103,17 @@ public class Writer {
 						}
 					}else{
 						if(radius>0){
-							x=startX+radius*(Math.sin(0)+Math.sin(radians));
-							y=startY+radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
+							if(velNow<0.000254){
+								x=startX-radius*(Math.sin(0)+Math.sin(radians));
+								y=startY+radius*(Math.cos(0)-Math.cos(radians));
+								startAngle=radians;
+								radmul = -1;
+							}else{
+								x=startX+radius*(Math.sin(0)+Math.sin(radians));
+								y=startY+radius*(Math.cos(0)-Math.cos(radians));
+								startAngle=radians;
+								radmul = 1;
+							}
 						}else{
 							y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
 							x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
@@ -108,7 +125,7 @@ public class Writer {
 					posLast = posNow;
 					
 				    if(m_writer != null){try{
-							m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
+							m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+(radians*radmul)+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 						}catch(Exception e){}}
 		
 					/*if(line+1==lineNum){//last one
@@ -137,6 +154,7 @@ public class Writer {
 	    startY=y;
 	    startAngle=0.0;
 		velLast=0;
+		radmul = 1;
 		for(int line = -1;line < lineNum;line++){
 			if(line >= 0){
 				Double[] accVel = rightAccs.get(line);
@@ -162,9 +180,16 @@ public class Writer {
 				double deltaPos=posNow-posLast;
 				if(radians<0){
 					if(radius>0){
-						x=startX-radius*(Math.sin(0)+Math.sin(radians));
-						y=startY-radius*(Math.cos(0)-Math.cos(radians));
-						startAngle=radians;
+						if(velNow<0.000254){
+							x=startX+radius*(Math.sin(0)+Math.sin(radians));
+							y=startY-radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+							radmul = -1;
+						}else{
+							x=startX-radius*(Math.sin(0)+Math.sin(radians));
+							y=startY-radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+						}
 					}else{
 						y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
 						x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
@@ -173,9 +198,16 @@ public class Writer {
 					}
 				}else{
 					if(radius>0){
-						x=startX+radius*(Math.sin(0)+Math.sin(radians));
-						y=startY+radius*(Math.cos(0)-Math.cos(radians));
-						startAngle=radians;
+						if(velNow<0.000254){
+							x=startX-radius*(Math.sin(0)+Math.sin(radians));
+							y=startY+radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+							radmul = -1;
+						}else{
+							x=startX+radius*(Math.sin(0)+Math.sin(radians));
+							y=startY+radius*(Math.cos(0)-Math.cos(radians));
+							startAngle=radians;
+						}
 					}else{
 						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
 						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
@@ -187,7 +219,7 @@ public class Writer {
 				posLast = posNow;
 				
 			    if(m_writer != null){try{
-						m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
+						m_writer.write(posNow + " "+velNow+" "+acc+" 0 "+(radians*radmul)+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 					}catch(Exception e){}}
 	
 				/*if(line+1==lineNum){//last one

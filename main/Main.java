@@ -23,12 +23,30 @@ public class Main {
 		*/
 		
 		//these 3 lines are for a side gear auto, +60 degrees for left side gear -60 for right
+		
+		//l.drawStraightPath(3.25,0.0,2.5);
+		//a.drawArcPath(60, 7.2, 2.5, 0.5);
+		
+		//a.drawArcPath(-120, -7.2, 2.5, 0.5);
+		l.drawStraightPath(-2.0,0.0,0.0);
+		//l.drawStraightPath(10.0,0.0,0.0);
+		//l.drawStraightPath(0.5,0.5,0.0);
+//1678 auto
+		//l.drawStraightPath(6.7, 0.0, 0.0);
+		
+		//a.drawArcPath(95, -3.5, 0.0, 0.5);
+		//l.drawStraightPath(-3.5, 0.5, 0.0);
+		
+		//l.drawStraightPath(25.0, 0.0, 0.0);
 		/*
-		l.drawStraightPath(3.7916666665,0.0,2.5);
-		a.drawArcPath(60, 7.125, 2.5, 0.5);
-		l.drawStraightPath(0.04166666667,0.5,0.0);
+		a.drawArcPath(90, -5, 0, 1.0);
+		l.drawStraightPath(-10, 1.0, 1.0);
+		a.drawArcPath(45, -5, 1.0, 1.0);
+		l.drawStraightPath(-15, 1.0, 0.0);
 		*/
-		l.drawStraightPath(6.7, 0.0, 0.0);
+//hopperPath
+		//a.drawArcPath(-51.5, 5, 0, 3.0);
+		//l.drawStraightPath(3.8, 3.0, 0.0);
 		/*
 		 * you can write multiple files that are exactly the same by calling w.writeFile multiple times with different filenames
 		 * one file ("testPath") will be the file that the path visualizer uses
@@ -39,5 +57,6 @@ public class Main {
 		Writer w = new Writer();
 		//w.printArrays();
 		w.writeFile("testPath");
+		w.writeFile("sideGearDownfieldPath0");
 	}
 }

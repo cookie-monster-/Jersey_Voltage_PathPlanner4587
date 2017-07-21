@@ -11,9 +11,16 @@ public class Arcs {
 	double acc2Lines;
 	double acc3Lines;
 	double flatAccLines;
+	boolean backwards;
 	public void drawArcPath(double totalDegrees,double radius,double startVel,double endVel) {
 		String filename = "banana";
 	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+	    if(radius<0){
+	    	radius *= -1;
+	    	backwards = true;
+	    }else{
+	    	backwards = false;
+	    }
 		//double totalDegrees = 900;
 	    double totalDistance=Math.abs((2*Math.PI*radius)*(totalDegrees/360));
 	    Writer w = new Writer();
@@ -637,7 +644,7 @@ public class Arcs {
 			System.out.println("ERROR: Bad Path - hexDist: "+hexDist+"ft");
 			return;
 		}
-		double lineNum=endTriLineNum+startTriLineNum+trapLineNum+1;//zero line
+		double lineNum=endTriLineNum+startTriLineNum+trapLineNum;//zero line
 		lineNum = Math.round(lineNum);
 		//System.out.println("endTLine: "+endTriLineNum+" startTLine: "+startTriLineNum+" trapLine: "+trapLineNum);
 		double testAcc=0;
@@ -669,13 +676,21 @@ public class Arcs {
 				}else{
 					radDelta=0;
 				}
-				Double[] accVel = {acc,velNow,radDelta,radius};
-				if(totalDegrees<0){
-					w.addRightAcc(accVel);
+				if(backwards){
+					Double[] accVel = {-acc,-velNow,radDelta,radius};
+					if(totalDegrees<0){
+						w.addRightAcc(accVel);
+					}else{
+						w.addLeftAcc(accVel);
+					}
 				}else{
-					w.addLeftAcc(accVel);
+					Double[] accVel = {acc,velNow,radDelta,radius};
+					if(totalDegrees<0){
+						w.addRightAcc(accVel);
+					}else{
+						w.addLeftAcc(accVel);
+					}
 				}
-
 				velLast = velNow;
 				posLast = posNow;
 				if(line+1==lineNum){//last one
@@ -735,11 +750,21 @@ public class Arcs {
 				}else{
 					radDelta=0;
 				}
-				Double[] accVel = {acc,velNow,radDelta,radius};
-				if(totalDegrees<0){
-					w.addLeftAcc(accVel);
+				
+				if(backwards){
+					Double[] accVel = {-acc,-velNow,radDelta,radius};
+					if(totalDegrees<0){
+						w.addLeftAcc(accVel);
+					}else{
+						w.addRightAcc(accVel);
+					}
 				}else{
-					w.addRightAcc(accVel);
+					Double[] accVel = {acc,velNow,radDelta,radius};
+					if(totalDegrees<0){
+						w.addLeftAcc(accVel);
+					}else{
+						w.addRightAcc(accVel);
+					}
 				}
 
 				
