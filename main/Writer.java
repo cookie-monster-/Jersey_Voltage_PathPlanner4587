@@ -81,44 +81,75 @@ public class Writer {
 					//x=Math.sin(radians)*radius;
 					//y=wheelbase/24+radius-Math.cos(radians)*radius;
 					double deltaPos=posNow-posLast;
-
 					if(radians<0){
 						if(radius>0){
-							if(velNow<0.000254){
-								x=startX+radius*(Math.sin(0)+Math.sin(radians));
-								y=startY-radius*(Math.cos(0)-Math.cos(radians));
-								startAngle=radians;
-								radmul = -1;
+							if(startAngle == 0){
+								if(velNow<0.000254){
+									x=startX+radius*(Math.sin(startAngle)+Math.sin(radians));
+									y=startY-radius*(Math.cos(startAngle)-Math.cos(radians));
+									radmul = -1;
+								}else{
+									x=startX-radius*(Math.sin(startAngle)+Math.sin(radians));
+									y=startY-radius*(Math.cos(startAngle)-Math.cos(radians));
+									radmul = 1;
+								}
 							}else{
-								x=startX-radius*(Math.sin(0)+Math.sin(radians));
-								y=startY-radius*(Math.cos(0)-Math.cos(radians));
-								startAngle=radians;
-								radmul = 1;
+								if(velNow>0.000254){
+									x=startX-radius*(Math.sin(0)+Math.sin(radians));
+									y=startY+radius*(Math.cos(0)-Math.cos(radians));
+									radmul = -1;
+								}else{
+									x=startX+radius*(Math.sin(0)+Math.sin(radians));
+									y=startY+radius*(Math.cos(0)-Math.cos(radians));
+									radmul = 1;
+								}
 							}
 						}else{
-							y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
-							x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
-							startX=x;
-							startY=y;
+							startAngle=radians;
+							y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians*radmul));
+							x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians*radmul));
+							if(startAngle!=0){
+								startX=x+1.395833333;
+								startY=y+0.3740124144;
+							}else{
+								startX=x;
+								startY=y;
+							}
 						}
 					}else{
 						if(radius>0){
-							if(velNow<0.000254){
-								x=startX-radius*(Math.sin(0)+Math.sin(radians));
-								y=startY+radius*(Math.cos(0)-Math.cos(radians));
-								startAngle=radians;
-								radmul = -1;
+							if(startAngle == 0){
+								if(velNow<0.000254){
+									x=startX-radius*(Math.sin(startAngle)+Math.sin(radians));
+									y=startY+radius*(Math.cos(startAngle)-Math.cos(radians));
+									radmul = -1;
+								}else{
+									x=startX+radius*(Math.sin(startAngle)+Math.sin(radians));
+									y=startY+radius*(Math.cos(startAngle)-Math.cos(radians));
+									radmul = 1;
+								}
 							}else{
-								x=startX+radius*(Math.sin(0)+Math.sin(radians));
-								y=startY+radius*(Math.cos(0)-Math.cos(radians));
-								startAngle=radians;
-								radmul = 1;
+								if(velNow>0.000254){
+									x=startX+radius*(Math.sin(0)+Math.sin(radians));
+									y=startY-radius*(Math.cos(0)-Math.cos(radians));
+									radmul = -1;
+								}else{
+									x=startX-radius*(Math.sin(0)+Math.sin(radians));
+									y=startY-radius*(Math.cos(0)-Math.cos(radians));
+									radmul = 1;
+								}
 							}
 						}else{
-							y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
-							x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
-							startX=x;
-							startY=y;
+							startAngle=radians;
+							y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians*radmul));
+							x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians*radmul));
+							if(startAngle!=0){
+								startX=x+1.395833333;
+								startY=y+0.3740124144;
+							}else{
+								startX=x;
+								startY=y;
+							}
 						}
 					}
 					velLast = velNow;
@@ -180,39 +211,73 @@ public class Writer {
 				double deltaPos=posNow-posLast;
 				if(radians<0){
 					if(radius>0){
-						if(velNow<0.000254){
-							x=startX+radius*(Math.sin(0)+Math.sin(radians));
-							y=startY-radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
-							radmul = -1;
+						if(startAngle == 0){
+							if(velNow<0.000254){
+								x=startX+radius*(Math.sin(startAngle)+Math.sin(radians));
+								y=startY-radius*(Math.cos(startAngle)-Math.cos(radians));
+								radmul = -1;
+							}else{
+								x=startX-radius*(Math.sin(startAngle)+Math.sin(radians));
+								y=startY-radius*(Math.cos(startAngle)-Math.cos(radians));
+								radmul = 1;
+							}
 						}else{
-							x=startX-radius*(Math.sin(0)+Math.sin(radians));
-							y=startY-radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
+							if(velNow>0.000254){
+								x=startX-radius*(Math.sin(0)+Math.sin(radians));
+								y=startY+radius*(Math.cos(0)-Math.cos(radians));
+								radmul = -1;
+							}else{
+								x=startX+radius*(Math.sin(0)+Math.sin(radians));
+								y=startY+radius*(Math.cos(0)-Math.cos(radians));
+								radmul = 1;
+							}
 						}
 					}else{
-						y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians));
-						x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians));
-						startX=x;
-						startY=y;
+						startAngle=radians;
+						y+=deltaPos*(/*Math.sin(0)+*/-Math.sin(radians*radmul));
+						x+=deltaPos*(/*Math.cos(0)-*/-Math.cos(radians*radmul));
+						if(startAngle!=0){
+							startX=x+2.5;
+							startY=y+0.6698729811;
+						}else{
+							startX=x;
+							startY=y;
+						}
 					}
 				}else{
 					if(radius>0){
-						if(velNow<0.000254){
-							x=startX-radius*(Math.sin(0)+Math.sin(radians));
-							y=startY+radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
-							radmul = -1;
+						if(startAngle == 0){
+							if(velNow<0.000254){
+								x=startX-radius*(Math.sin(startAngle)+Math.sin(radians));
+								y=startY+radius*(Math.cos(startAngle)-Math.cos(radians));
+								radmul = -1;
+							}else{
+								x=startX+radius*(Math.sin(startAngle)+Math.sin(radians));
+								y=startY+radius*(Math.cos(startAngle)-Math.cos(radians));
+								radmul = 1;
+							}
 						}else{
-							x=startX+radius*(Math.sin(0)+Math.sin(radians));
-							y=startY+radius*(Math.cos(0)-Math.cos(radians));
-							startAngle=radians;
+							if(velNow>0.000254){
+								x=startX+radius*(Math.sin(0)+Math.sin(radians));
+								y=startY-radius*(Math.cos(0)-Math.cos(radians));
+								radmul = -1;
+							}else{
+								x=startX-radius*(Math.sin(0)+Math.sin(radians));
+								y=startY-radius*(Math.cos(0)-Math.cos(radians));
+								radmul = 1;
+							}
 						}
 					}else{
-						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians));
-						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians));
-						startX=x;
-						startY=y;
+						startAngle=radians;
+						y+=deltaPos*(/*Math.sin(0)+*/Math.sin(radians*radmul));
+						x+=deltaPos*(/*Math.cos(0)-*/Math.cos(radians*radmul));
+						if(startAngle!=0){
+							startX=x+2.5;
+							startY=y+0.6698729811;
+						}else{
+							startX=x;
+							startY=y;
+						}
 					}
 				}
 				velLast = velNow;

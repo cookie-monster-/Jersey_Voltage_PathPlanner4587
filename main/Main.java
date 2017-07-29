@@ -3,11 +3,12 @@ package main;
 public class Main {
 	// Get everything set up
 	public static void main(String[] args){
-	    //Circles c = new Circles();
-		//c.drawCirclePath("testPath", 90);
+	    Circles c = new Circles();
+	//	c.drawCirclePath("bumpHopperPath", 20);
 		
 		Lines l = new Lines();
 		Arcs a = new Arcs();
+		
 		
 		/* 
 		 * Draw lines format = l.drawStraightPath(distance(ft), startVelocity(ft/s), endVelocity(ft/s));
@@ -28,7 +29,7 @@ public class Main {
 		//a.drawArcPath(60, 7.2, 2.5, 0.5);
 		
 		//a.drawArcPath(-120, -7.2, 2.5, 0.5);
-		l.drawStraightPath(-2.0,0.0,0.0);
+		//l.drawStraightPath(-2.0,0.0,0.0);
 		//l.drawStraightPath(10.0,0.0,0.0);
 		//l.drawStraightPath(0.5,0.5,0.0);
 //1678 auto
@@ -47,6 +48,30 @@ public class Main {
 //hopperPath
 		//a.drawArcPath(-51.5, 5, 0, 3.0);
 		//l.drawStraightPath(3.8, 3.0, 0.0);
+		//a.drawArcPath(-51.5, 5, 0, 3.0);
+		//l.drawStraightPath(4.3, 3.0, 0.0);
+		/*
+		l.drawStraightPath(14, 0, 0);
+		a.drawArcPath(45, -5, 0, 3.0);
+		l.drawStraightPath(-1, 3.0, 3.0);
+		a.drawArcPath(-45, -5, 3.0, 0);
+		*/
+//notSoCrazyHopperPath
+		/*
+		l.drawStraightPath(0.5, 0, 0);
+		a.drawArcPath(30, 5, 0, 3.0);
+		l.drawStraightPath(2.5, 3.0, 3.0);
+		a.drawArcPath(-30, -5, 3.0, 0);
+		*/
+		//crazyHopperPath
+		
+		l.drawStraightPath(2.5, 0, 0);
+		a.drawArcPath(30, 5, 0, 3.0);
+		l.drawStraightPath(2.8, 3.0, 3.0);
+		a.drawArcPath(-30, -5, 3.0, 0);
+		l.drawStraightPath(-2.3, 4.0, 0);
+		
+		
 		/*
 		 * you can write multiple files that are exactly the same by calling w.writeFile multiple times with different filenames
 		 * one file ("testPath") will be the file that the path visualizer uses
@@ -57,6 +82,6 @@ public class Main {
 		Writer w = new Writer();
 		//w.printArrays();
 		w.writeFile("testPath");
-		w.writeFile("sideGearDownfieldPath0");
+	//	w.writeFile("sideGearDownfieldPath0");
 	}
 }

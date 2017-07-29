@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Circles {
 	public void drawCirclePath(String filename, double totalDegrees) {
-	    String filepath = "C:/Users/Drew/Desktop/pathGui/"+filename+".txt";
+	    String filepath = "C:/Users/frc4587/Desktop/pathGui/"+filename+".txt";
 		//double totalDegrees = 900;
 		double acceleration = Constants.ACC_MAX;
 		double wheelbase = Constants.WHEELBASE;
@@ -84,7 +84,7 @@ public class Circles {
 				posLast = posNow;
 				
 			    if(m_writer != null){try{
-						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y);// jerk, x, y = 0
+						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 					}catch(Exception e){}}
 	
 				if(line+1==lineNum){//last one
@@ -94,7 +94,7 @@ public class Circles {
 				}
 			}else{
 				 if(m_writer != null){try{
-						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y);//first line 0 everything
+						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 					}catch(Exception e){}}
 			}
 		}
@@ -140,7 +140,7 @@ public class Circles {
 				posLast = posNow;
 				
 			    if(m_writer != null){try{
-						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y);// jerk, x, y = 0
+						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 					}catch(Exception e){}}
 	
 				if(line+1==lineNum){//last one
@@ -150,7 +150,7 @@ public class Circles {
 				}
 			}else{
 				 if(m_writer != null){try{
-						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y);//first line 0 everything
+						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
 					}catch(Exception e){}}
 			}
 		}
